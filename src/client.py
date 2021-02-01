@@ -26,7 +26,7 @@ def start():
     if j != {}:
       print(j)
       running=True
-      out=job.run(j['job'])
+      out=job.run(j['params'])
       print('Job done')
       c.jobComplete(j['id'])
 

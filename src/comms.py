@@ -17,30 +17,30 @@ class Comms:
     self.id=_client_id
 
   def pingServer(self):
-    r = requests.get(f'http://{SERVER_ADDR}:{SERVER_PORT}/ping', params={'id':self.id})
+    r = requests.post(f'http://{SERVER_ADDR}:{SERVER_PORT}/ping', data={'id':self.id})
     print(r.text)
 
   def jobComplete(self, _jobID):
     params={
       'id':self.id,
-      'job_id':_jobID
+      'task_id':_jobID
     }
-    r = requests.get(f'http://{SERVER_ADDR}:{SERVER_PORT}/job_complete', params=params)
+    r = requests.post(f'http://{SERVER_ADDR}:{SERVER_PORT}/task_complete', data=params)
   
   def getJob(self):
     params={'id':self.id}
-    r = requests.get(f'http://{SERVER_ADDR}:{SERVER_PORT}/get_job', params=params)
+    r = requests.post(f'http://{SERVER_ADDR}:{SERVER_PORT}/get_task', data=params)
     return r
 
   def uploadJob(self, _jobID, _filename):
     payload = MultipartEncoder(
       fields={
         'id':self.id,
-        'job_id':_jobID,
-        'jobOutput': ('filename', open(_filename, 'rb'), 'application/binary')
+        'task_id':_jobID,
+        'taskOutput': ('filename', open(_filename, 'rb'), 'application/binary')
       })
 
-    r = requests.post(f'http://{SERVER_ADDR}:{SERVER_PORT}/upload_job', data=payload, headers={
+    r = requests.post(f'http://{SERVER_ADDR}:{SERVER_PORT}/upload_task', data=payload, headers={
       'Content-Type': payload.content_type
     })
 
