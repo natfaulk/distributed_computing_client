@@ -13,10 +13,12 @@ if SERVER_PORT is None:
 if SERVER_ADDR is None:
   SERVER_ADDR='127.0.0.1'
 
-if SERVER_USE_HTTP_HTTPS.capitalize()=='HTTPS':
+if SERVER_USE_HTTP_HTTPS is not None and SERVER_USE_HTTP_HTTPS.upper().strip()=='HTTPS':
   SERVER_URL=f'https://{SERVER_ADDR}/'
 else:
   SERVER_URL=f'http://{SERVER_ADDR}:{SERVER_PORT}/'
+
+print(SERVER_URL)
 
 class Comms:
   def __init__(self, _client_id):
