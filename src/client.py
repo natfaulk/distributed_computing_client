@@ -21,8 +21,14 @@ def start():
   ping.begin(CLIENT_ID)
 
   while(1):
-    j=c.getJob().json()
+    j=c.getJob()
 
+    if j['error']:
+      print('Couldn\'t reach job server...')
+      time.sleep(60)
+      continue
+    
+    j=j['job']
     if j != {}:
       print(j)
       running=True

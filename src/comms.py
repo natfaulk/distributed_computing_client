@@ -1,7 +1,10 @@
 import os
+import socket
 
 import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder
+
+from . import version
 
 SERVER_PORT=os.getenv('SERVER_PORT')
 SERVER_ADDR=os.getenv('SERVER_ADDR')
@@ -25,20 +28,42 @@ class Comms:
     self.id=_client_id
 
   def pingServer(self):
-    r = requests.post(f'{SERVER_URL}ping', data={'id':self.id})
-    print(r.text)
+    params = {
+      'id':self.id,
+      'hostname': socket.gethostname(),
+      'clientVersion': version.__version__
+    }
+
+    try: 
+      r = requests.post(f'{SERVER_URL}ping', data=params)
+      print(r.text)
+    except:
+      print('Error pinging server')
 
   def jobComplete(self, _jobID):
     params={
       'id':self.id,
       'task_id':_jobID
     }
-    r = requests.post(f'{SERVER_URL}task_complete', data=params)
-  
+    try:
+      r = requests.post(f'{SERVER_URL}task_complete', data=params)
+    except:
+      print('Error sending job complete')
+
   def getJob(self):
     params={'id':self.id}
-    r = requests.post(f'{SERVER_URL}get_task', data=params)
-    return r
+
+    out = {'error':False, 'job':{}}
+
+    try:
+      r = requests.post(f'{SERVER_URL}get_task', data=params)
+      out['job'] = r.json()
+    except:
+      print('Error getting job')
+      # an error currently will return the same as no job available
+      out['error'] = True
+    
+    return out
 
   def uploadJob(self, _jobID, _filename):
     payload = MultipartEncoder(
@@ -48,8 +73,12 @@ class Comms:
         'taskOutput': ('filename', open(_filename, 'rb'), 'application/binary')
       })
 
-    r = requests.post(f'{SERVER_URL}upload_task', data=payload, headers={
-      'Content-Type': payload.content_type
-    })
+    try:
+      r = requests.post(f'{SERVER_URL}upload_task', data=payload, headers={
+        'Content-Type': payload.content_type
+      })
+      print('Upload response:', r.content)
+    
+    except:
+      print('Error uploading job')
 
-    print('Upload response:', r.content)
